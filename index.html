@@ -1,1 +1,119 @@
-Hello World
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Jetstreamin AR Mini-Game</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <!-- AR.js + A-Frame CDN -->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.4/aframe/build/aframe-ar.js"></script>
+  <style>
+    body { margin: 0; font-family: monospace; background: #111; color: #eee; }
+    #ui { position: fixed; top: 0; left: 0; width: 100%; background: #111c; z-index: 10; }
+    #score { display: inline-block; margin: 8px 20px; }
+    #fact { display: inline-block; margin: 8px 20px; font-size: 1em; }
+    #actions { float: right; margin: 8px 20px; }
+    .btn { background: #222; color: #fff; border: none; padding: 6px 12px; margin: 0 4px; cursor: pointer; border-radius: 6px; }
+    #fallback { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #e00; text-align: center; display: none; }
+  </style>
+</head>
+<body>
+<div id="ui">
+  <span id="score">Score: 0</span>
+  <span id="fact">Jetstreamin AR: Toss the mesh!</span>
+  <span id="actions">
+    <button class="btn" onclick="share()">Share</button>
+    <button class="btn" onclick="window.open('https://github.com/jetstreamin/jetstreamin-public','_blank')">Promptbook</button>
+    <button class="btn" onclick="window.open('https://whatnot.com/user/jetstreamin','_blank')">Whatnot</button>
+  </span>
+</div>
+<div id="fallback">
+  <h2>AR not supported.</h2>
+  <p>Use a mobile device with camera support.<br>Try Chrome/Edge/Safari.<br>Contact support if issues persist.</p>
+</div>
+
+<a-scene
+  embedded
+  arjs="sourceType: webcam; debugUIEnabled: false;"
+  vr-mode-ui="enabled: false"
+  renderer="logarithmicDepthBuffer: true;"
+  id="scene"
+>
+  <!-- AR marker, game objects will appear here -->
+  <a-marker preset="hiro" id="marker">
+    <a-entity id="game-cone" geometry="primitive: cone; radiusBottom: 0.25; radiusTop: 0; height: 0.5" position="0 0.25 0" material="color: #07f; opacity: 0.85"></a-entity>
+  </a-marker>
+  <a-entity camera></a-entity>
+</a-scene>
+
+<script>
+var score = 0;
+var facts = [
+  "Conical mesh = ultra-efficient causal inference.",
+  "Promptbooks: DAG-traceable logic for AGI.",
+  "Jetstreamin secures all ops via daemon13.",
+  "Cyphermorph = dynamic prompt mutation.",
+  "OCP = mesh protocol for real AR/AI.",
+  "All code is versioned, live, paste-and-go.",
+  "Viral AR, TikTok/Whatnot export ready.",
+  "NETA: supreme logic, zero downtime.",
+  "Jetstreamin > Lattice (see doc)."
+];
+var factIdx = 0;
+var cone;
+function updateScore(inc) {
+  score += inc;
+  document.getElementById('score').textContent = 'Score: ' + score;
+  factIdx = (factIdx + 1) % facts.length;
+  document.getElementById('fact').textContent = facts[factIdx];
+  // Optional: viral call-to-action
+  if (score && score % 5 === 0) {
+    document.getElementById('fact').textContent += ' Share your score!';
+  }
+}
+// Place/move cone by tapping/clicking marker
+AFRAME.registerComponent('toss-mesh', {
+  init: function () {
+    var el = this.el;
+    el.addEventListener('click', function () {
+      var dx = (Math.random() - 0.5) * 0.8;
+      var dz = (Math.random() - 0.5) * 0.8;
+      el.setAttribute('position', {x: dx, y: 0.25 + Math.random() * 0.2, z: dz});
+      updateScore(1);
+    });
+    // Touch for mobile
+    el.addEventListener('touchstart', function () {
+      var dx = (Math.random() - 0.5) * 0.8;
+      var dz = (Math.random() - 0.5) * 0.8;
+      el.setAttribute('position', {x: dx, y: 0.25 + Math.random() * 0.2, z: dz});
+      updateScore(1);
+    });
+  }
+});
+window.onload = function() {
+  // AR capability check
+  var isARCapable = !!navigator.mediaDevices && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isARCapable) {
+    document.getElementById('scene').style.display = 'none';
+    document.getElementById('fallback').style.display = 'block';
+  } else {
+    // Activate mini-game
+    cone = document.getElementById('game-cone');
+    cone.setAttribute('toss-mesh', '');
+  }
+};
+// Viral share button logic (if supported)
+function share() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'Jetstreamin AR Mini-Game',
+      text: 'Test your mesh mastery! Score: ' + score + ' #Jetstreamin',
+      url: location.href
+    });
+  } else {
+    prompt('Copy and share:', location.href + '\nJetstreamin AR! Score: ' + score);
+  }
+}
+</script>
+</body>
+</html>
