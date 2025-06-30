@@ -1,1 +1,1 @@
-while ($true) { [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((Get-Random -Minimum 0 -Maximum ([System.Windows.Forms.SystemInformation]::PrimaryMonitorSize.Width)), (Get-Random -Minimum 0 -Maximum ([System.Windows.Forms.SystemInformation]::PrimaryMonitorSize.Height))); Start-Sleep -Seconds 5 }
+
