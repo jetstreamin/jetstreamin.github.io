@@ -1,0 +1,475 @@
+/* AR Experience Styles for Jetstreamin */
+/* A-Frame and AR.js integration styles */
+
+.ar-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    margin: 2rem 0;
+    padding: 3rem;
+    border: 1px solid var(--secondary-color);
+}
+
+.ar-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 3rem;
+    align-items: start;
+}
+
+.ar-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.ar-controls h3 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* AR Control Buttons */
+.btn-ar {
+    position: relative;
+    padding: 1.2rem 1.8rem;
+    background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+    color: var(--text-light);
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    overflow: hidden;
+}
+
+.btn-ar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-ar:hover::before {
+    left: 100%;
+}
+
+.btn-ar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 0, 136, 0.4);
+}
+
+.btn-ar:active {
+    transform: translateY(-1px);
+}
+
+.btn-ar.launch {
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+}
+
+.btn-ar.drop {
+    background: linear-gradient(45deg, var(--accent-color), #ff6b35);
+}
+
+.btn-ar.map {
+    background: linear-gradient(45deg, var(--secondary-color), #8a2be2);
+}
+
+/* AR Preview Area */
+.ar-preview {
+    position: relative;
+    background: radial-gradient(circle at center, rgba(0, 136, 255, 0.1) 0%, transparent 70%);
+    border: 2px dashed var(--secondary-color);
+    border-radius: 12px;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ar-preview::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(45deg, transparent 48%, rgba(0, 136, 255, 0.1) 50%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(0, 136, 255, 0.1) 50%, transparent 52%);
+    background-size: 20px 20px;
+    animation: arGrid 10s linear infinite;
+}
+
+@keyframes arGrid {
+    0% { background-position: 0 0, 0 0; }
+    100% { background-position: 20px 20px, -20px 20px; }
+}
+
+.ar-placeholder {
+    text-align: center;
+    z-index: 2;
+    position: relative;
+}
+
+.ar-placeholder h3 {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.ar-feature {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 136, 255, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--secondary-color);
+}
+
+.ar-feature-icon {
+    font-size: 2rem;
+    color: var(--secondary-color);
+}
+
+.ar-feature-text {
+    flex: 1;
+    text-align: left;
+}
+
+.ar-feature-title {
+    color: var(--text-light);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.ar-feature-desc {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+}
+
+/* AR Canvas Overlay */
+.ar-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    display: none;
+}
+
+.ar-canvas.active {
+    display: block;
+}
+
+.ar-viewfinder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: arScan 2s ease-in-out infinite;
+}
+
+@keyframes arScan {
+    0%, 100% { 
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.7;
+    }
+}
+
+.ar-overlay-ui {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+}
+
+.ar-ui-button {
+    padding: 1rem;
+    background: rgba(0, 136, 255, 0.8);
+    color: var(--text-light);
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.ar-ui-button:hover {
+    background: var(--secondary-color);
+    transform: scale(1.1);
+}
+
+/* AR Content Markers */
+.ar-marker {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-dark);
+    font-weight: bold;
+    animation: arPulse 2s ease-in-out infinite;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ar-marker:hover {
+    transform: scale(1.2);
+    background: var(--accent-color);
+}
+
+@keyframes arPulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+    }
+    70% { 
+        box-shadow: 0 0 0 20px rgba(0, 255, 136, 0);
+    }
+}
+
+/* AR Statistics Panel */
+.ar-stats {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.ar-stats h4 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.ar-stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 4px;
+}
+
+.ar-stat-label {
+    color: var(--text-dim);
+}
+
+.ar-stat-value {
+    color: var(--primary-color);
+    font-family: var(--font-mono);
+    font-weight: bold;
+}
+
+/* AR Map View */
+.ar-map {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: radial-gradient(circle at 30% 70%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 30%, rgba(0, 136, 255, 0.1) 0%, transparent 50%);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    display: none;
+}
+
+.ar-map.active {
+    display: block;
+}
+
+.ar-location-pin {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-color);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    animation: locationPulse 3s ease-in-out infinite;
+    cursor: pointer;
+}
+
+@keyframes locationPulse {
+    0%, 100% { transform: rotate(-45deg) scale(1); }
+    50% { transform: rotate(-45deg) scale(1.3); }
+}
+
+.ar-location-pin::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    background: var(--text-light);
+    border-radius: 50% 50% 50% 0;
+}
+
+/* QR Code Scanner */
+.qr-scanner {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    margin: 2rem auto;
+    overflow: hidden;
+}
+
+.qr-scanner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    animation: qrScan 2s linear infinite;
+}
+
+@keyframes qrScan {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(196px); }
+}
+
+.qr-corners {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+}
+
+.qr-corners::before,
+.qr-corners::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--primary-color);
+}
+
+.qr-corners::before {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+}
+
+.qr-corners::after {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+}
+
+/* AR Experience Modes */
+.ar-mode-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.ar-mode {
+    padding: 0.8rem 1.5rem;
+    background: transparent;
+    color: var(--text-dim);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.ar-mode.active {
+    background: var(--secondary-color);
+    color: var(--text-light);
+    border-color: var(--secondary-color);
+}
+
+.ar-mode:hover {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* Responsive AR Design */
+@media (max-width: 768px) {
+    .ar-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .ar-controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .btn-ar {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .ar-preview {
+        min-height: 300px;
+    }
+    
+    .ar-mode-selector {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .ar-controls {
+        flex-direction: column;
+    }
+    
+    .btn-ar {
+        width: 100%;
+    }
+    
+    .ar-preview {
+        min-height: 250px;
+    }
+    
+    .ar-feature {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .qr-scanner {
+        width: 150px;
+        height: 150px;
+    }
+}

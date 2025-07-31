@@ -1,0 +1,143 @@
+{
+  "name": "jetstreamin-homepage",
+  "version": "1.0.0",
+  "description": "Comprehensive homepage for the Jetstreamin Autonomous AI Agent Platform",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "serve": "npx serve .",
+    "build": "npm run minify && npm run optimize",
+    "minify": "npm run minify:css && npm run minify:js",
+    "minify:css": "cleancss -o dist/styles/bundle.min.css styles/*.css",
+    "minify:js": "uglifyjs scripts/*.js -o dist/scripts/bundle.min.js",
+    "optimize": "npm run optimize:images && npm run optimize:html",
+    "optimize:images": "imagemin assets/**/*.{jpg,png,gif,svg} --out-dir=dist/assets",
+    "optimize:html": "html-minifier --collapse-whitespace --remove-comments index.html -o dist/index.html",
+    "test": "npm run test:html && npm run test:css && npm run test:js && npm run test:accessibility",
+    "test:html": "html-validate index.html",
+    "test:css": "stylelint styles/*.css",
+    "test:js": "eslint scripts/*.js",
+    "test:accessibility": "axe-cli http://localhost:8000",
+    "lint": "npm run lint:css && npm run lint:js",
+    "lint:css": "stylelint styles/*.css --fix",
+    "lint:js": "eslint scripts/*.js --fix",
+    "validate": "npm run validate:compliance && npm run validate:performance",
+    "validate:compliance": "node scripts/compliance-check.js",
+    "validate:performance": "lighthouse http://localhost:8000 --output=json --output-path=./reports/lighthouse.json",
+    "audit": "npm audit && npm run test && npm run validate",
+    "deploy": "npm run build && npm run deploy:staging",
+    "deploy:staging": "rsync -avz dist/ staging.jetstreamin.com:/var/www/html/",
+    "deploy:production": "rsync -avz dist/ jetstreamin.com:/var/www/html/",
+    "docs": "jsdoc scripts/*.js -d docs/",
+    "clean": "rm -rf dist/ docs/ reports/",
+    "watch": "npm-watch"
+  },
+  "watch": {
+    "build": {
+      "patterns": ["styles", "scripts", "index.html"],
+      "extensions": "css,js,html"
+    }
+  },
+  "keywords": [
+    "jetstreamin",
+    "ai-agents",
+    "autonomous",
+    "ar",
+    "dashboard",
+    "compliance",
+    "homepage",
+    "real-time",
+    "monitoring"
+  ],
+  "author": "Jetstreamin Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jetstreamin/jetstreamin-agent.git",
+    "directory": "jetstreamin-homepage"
+  },
+  "bugs": {
+    "url": "https://github.com/jetstreamin/jetstreamin-agent/issues"
+  },
+  "homepage": "https://jetstreamin.com",
+  "devDependencies": {
+    "clean-css-cli": "^5.6.2",
+    "uglify-js": "^3.17.4",
+    "imagemin-cli": "^7.0.0",
+    "html-minifier": "^4.0.0",
+    "html-validate": "^8.7.4",
+    "stylelint": "^15.11.0",
+    "stylelint-config-standard": "^34.0.0",
+    "eslint": "^8.52.0",
+    "eslint-config-standard": "^17.1.0",
+    "axe-cli": "^4.8.2",
+    "lighthouse": "^11.3.0",
+    "jsdoc": "^4.0.2",
+    "npm-watch": "^0.11.0",
+    "serve": "^14.2.1"
+  },
+  "dependencies": {
+    "aframe": "^1.4.0",
+    "ar.js": "^2.2.2"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "files": [
+    "index.html",
+    "styles/",
+    "scripts/",
+    "assets/",
+    "README.md"
+  ],
+  "config": {
+    "compliance": {
+      "maxLineLength": 80,
+      "enforceFormatting": true,
+      "auditLogs": true
+    },
+    "performance": {
+      "budgetJS": "200kb",
+      "budgetCSS": "100kb",
+      "budgetImages": "500kb"
+    },
+    "accessibility": {
+      "wcagLevel": "AA",
+      "colorContrast": "enhanced"
+    }
+  },
+  "jetstreamin": {
+    "agents": {
+      "daemon13": "Central execution core integration",
+      "cyphermorph": "Dynamic UI transformation",
+      "atm": "Thought processing display",
+      "neta": "Executive dashboard control",
+      "wanita": "Network status monitoring"
+    },
+    "compliance": {
+      "staticAnalysis": true,
+      "lockFileValidation": true,
+      "auditLogging": true,
+      "columnFormatting": 80
+    },
+    "ar": {
+      "markerSupport": true,
+      "locationBased": true,
+      "contentDropping": true,
+      "multiModal": true
+    },
+    "monetization": {
+      "premiumFeatures": true,
+      "apiAccess": true,
+      "enterpriseSolutions": true,
+      "stripeIntegration": "planned"
+    }
+  }
+}

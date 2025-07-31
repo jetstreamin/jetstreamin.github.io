@@ -1,119 +1,313 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Jetstreamin AR Mini-Game</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <!-- AR.js + A-Frame CDN -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.4/aframe/build/aframe-ar.js"></script>
-  <style>
-    body { margin: 0; font-family: monospace; background: #111; color: #eee; }
-    #ui { position: fixed; top: 0; left: 0; width: 100%; background: #111c; z-index: 10; }
-    #score { display: inline-block; margin: 8px 20px; }
-    #fact { display: inline-block; margin: 8px 20px; font-size: 1em; }
-    #actions { float: right; margin: 8px 20px; }
-    .btn { background: #222; color: #fff; border: none; padding: 6px 12px; margin: 0 4px; cursor: pointer; border-radius: 6px; }
-    #fallback { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: #e00; text-align: center; display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jetstreamin - Autonomous AI Agent Platform</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="styles/ar.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-<div id="ui">
-  <span id="score">Score: 0</span>
-  <span id="fact">Jetstreamin AR: Toss the mesh!</span>
-  <span id="actions">
-    <button class="btn" onclick="share()">Share</button>
-    <button class="btn" onclick="window.open('https://github.com/jetstreamin/jetstreamin-public','_blank')">Promptbook</button>
-    <button class="btn" onclick="window.open('https://whatnot.com/user/jetstreamin','_blank')">Whatnot</button>
-  </span>
-</div>
-<div id="fallback">
-  <h2>AR not supported.</h2>
-  <p>Use a mobile device with camera support.<br>Try Chrome/Edge/Safari.<br>Contact support if issues persist.</p>
-</div>
+    <!-- ASCII Art Header -->
+    <header class="ascii-header">
+        <pre class="logo-ascii">
+     ██╗███████╗████████╗███████╗████████╗██████╗ ███████╗ █████╗ ███╗   ███╗██╗███╗   ██╗
+     ██║██╔════╝╚══██╔══╝██╔════╝╚══██╔══╝██╔══██╗██╔════╝██╔══██╗████╗ ████║██║████╗  ██║
+     ██║█████╗     ██║   ███████╗   ██║   ██████╔╝█████╗  ███████║██╔████╔██║██║██╔██╗ ██║
+██   ██║██╔══╝     ██║   ╚════██║   ██║   ██╔══██╗██╔══╝  ██╔══██║██║╚██╔╝██║██║██║╚██╗██║
+╚█████╔╝███████╗   ██║   ███████║   ██║   ██║  ██║███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║
+ ╚════╝ ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝
+        </pre>
+        <p class="tagline">Autonomous AI Agent Platform • Self-Improving • Monetizable</p>
+        <nav class="main-nav">
+            <a href="#dashboard" class="nav-link">Dashboard</a>
+            <a href="#agents" class="nav-link">Agents</a>
+            <a href="#ar-experience" class="nav-link">AR Experience</a>
+            <a href="#projects" class="nav-link">Projects</a>
+            <a href="#monetization" class="nav-link">Monetization</a>
+        </nav>
+    </header>
 
-<a-scene
-  embedded
-  arjs="sourceType: webcam; debugUIEnabled: false;"
-  vr-mode-ui="enabled: false"
-  renderer="logarithmicDepthBuffer: true;"
-  id="scene"
->
-  <!-- AR marker, game objects will appear here -->
-  <a-marker preset="hiro" id="marker">
-    <a-entity id="game-cone" geometry="primitive: cone; radiusBottom: 0.25; radiusTop: 0; height: 0.5" position="0 0.25 0" material="color: #07f; opacity: 0.85"></a-entity>
-  </a-marker>
-  <a-entity camera></a-entity>
-</a-scene>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>The Future of Autonomous AI</h1>
+            <p>Jetstreamin combines cutting-edge AI agents with AR experiences, self-healing systems, and built-in monetization. Deploy on Android (Termux), cloud, or anywhere.</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="startDemo()">Start Demo</button>
+                <button class="btn-secondary" onclick="viewDocs()">Documentation</button>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="agent-network">
+                <div class="agent-node daemon13" title="Daemon13: Central Execution Core">D13</div>
+                <div class="agent-node cyphermorph" title="Cyphermorph: Dynamic Transformation">CM</div>
+                <div class="agent-node atm" title="ATM: Automated Thought Machine">ATM</div>
+                <div class="agent-node neta" title="NETA: Executive Authority">NETA</div>
+                <div class="agent-node wanita" title="WANITA: Global Networking">WAN</div>
+            </div>
+        </div>
+    </section>
 
-<script>
-var score = 0;
-var facts = [
-  "Conical mesh = ultra-efficient causal inference.",
-  "Promptbooks: DAG-traceable logic for AGI.",
-  "Jetstreamin secures all ops via daemon13.",
-  "Cyphermorph = dynamic prompt mutation.",
-  "OCP = mesh protocol for real AR/AI.",
-  "All code is versioned, live, paste-and-go.",
-  "Viral AR, TikTok/Whatnot export ready.",
-  "NETA: supreme logic, zero downtime.",
-  "Jetstreamin > Lattice (see doc)."
-];
-var factIdx = 0;
-var cone;
-function updateScore(inc) {
-  score += inc;
-  document.getElementById('score').textContent = 'Score: ' + score;
-  factIdx = (factIdx + 1) % facts.length;
-  document.getElementById('fact').textContent = facts[factIdx];
-  // Optional: viral call-to-action
-  if (score && score % 5 === 0) {
-    document.getElementById('fact').textContent += ' Share your score!';
-  }
-}
-// Place/move cone by tapping/clicking marker
-AFRAME.registerComponent('toss-mesh', {
-  init: function () {
-    var el = this.el;
-    el.addEventListener('click', function () {
-      var dx = (Math.random() - 0.5) * 0.8;
-      var dz = (Math.random() - 0.5) * 0.8;
-      el.setAttribute('position', {x: dx, y: 0.25 + Math.random() * 0.2, z: dz});
-      updateScore(1);
-    });
-    // Touch for mobile
-    el.addEventListener('touchstart', function () {
-      var dx = (Math.random() - 0.5) * 0.8;
-      var dz = (Math.random() - 0.5) * 0.8;
-      el.setAttribute('position', {x: dx, y: 0.25 + Math.random() * 0.2, z: dz});
-      updateScore(1);
-    });
-  }
-});
-window.onload = function() {
-  // AR capability check
-  var isARCapable = !!navigator.mediaDevices && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (!isARCapable) {
-    document.getElementById('scene').style.display = 'none';
-    document.getElementById('fallback').style.display = 'block';
-  } else {
-    // Activate mini-game
-    cone = document.getElementById('game-cone');
-    cone.setAttribute('toss-mesh', '');
-  }
-};
-// Viral share button logic (if supported)
-function share() {
-  if (navigator.share) {
-    navigator.share({
-      title: 'Jetstreamin AR Mini-Game',
-      text: 'Test your mesh mastery! Score: ' + score + ' #Jetstreamin',
-      url: location.href
-    });
-  } else {
-    prompt('Copy and share:', location.href + '\nJetstreamin AR! Score: ' + score);
-  }
-}
-</script>
+    <!-- Real-time Dashboard -->
+    <section id="dashboard" class="dashboard-section">
+        <h2>Real-Time System Dashboard</h2>
+        <div class="dashboard-grid">
+            <div class="dashboard-card system-status">
+                <h3>System Status</h3>
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <span class="status-dot active"></span>
+                        <span>Daemon13 Core</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot active"></span>
+                        <span>ATM Processing</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot active"></span>
+                        <span>NETA Authority</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot warning"></span>
+                        <span>WANITA Network</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card metrics">
+                <h3>Performance Metrics</h3>
+                <div class="metric">
+                    <label>CPU Usage</label>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 65%"></div>
+                    </div>
+                    <span>65%</span>
+                </div>
+                <div class="metric">
+                    <label>Memory</label>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 42%"></div>
+                    </div>
+                    <span>42%</span>
+                </div>
+                <div class="metric">
+                    <label>Network</label>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 78%"></div>
+                    </div>
+                    <span>78%</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card recent-activity">
+                <h3>Recent Activity</h3>
+                <div class="activity-log">
+                    <div class="activity-item">
+                        <span class="timestamp">14:32:15</span>
+                        <span class="message">ATM processed 47 thought cycles</span>
+                    </div>
+                    <div class="activity-item">
+                        <span class="timestamp">14:31:58</span>
+                        <span class="message">NETA executed compliance check</span>
+                    </div>
+                    <div class="activity-item">
+                        <span class="timestamp">14:31:22</span>
+                        <span class="message">Cyphermorph transformed 3 prompts</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card compliance">
+                <h3>Compliance Status</h3>
+                <div class="compliance-checks">
+                    <div class="check-item passed">✓ Static Analysis</div>
+                    <div class="check-item passed">✓ Lock File Validation</div>
+                    <div class="check-item passed">✓ Audit Logs</div>
+                    <div class="check-item warning">⚠ 80-Column Format</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agent Architecture -->
+    <section id="agents" class="agents-section">
+        <h2>AI Agent Architecture</h2>
+        <div class="agents-grid">
+            <div class="agent-card">
+                <h3>Daemon13</h3>
+                <p class="agent-role">Central Execution Core</p>
+                <p>Handles secure logic, DAG state management, and autonomous agent actions. The heart of the Jetstreamin system.</p>
+                <div class="agent-metrics">
+                    <span class="metric">Uptime: 99.7%</span>
+                    <span class="metric">Tasks: 1,247</span>
+                </div>
+            </div>
+
+            <div class="agent-card">
+                <h3>Cyphermorph</h3>
+                <p class="agent-role">Dynamic Transformation</p>
+                <p>Manages promptbook mutation, inference framing, and user-facing logic transformations.</p>
+                <div class="agent-metrics">
+                    <span class="metric">Transforms: 892</span>
+                    <span class="metric">Efficiency: 94%</span>
+                </div>
+            </div>
+
+            <div class="agent-card">
+                <h3>ATM</h3>
+                <p class="agent-role">Automated Thought Machine</p>
+                <p>Independent thought incubator that processes context iteratively and outputs refined results to DAG.</p>
+                <div class="agent-metrics">
+                    <span class="metric">Thoughts: 15,432</span>
+                    <span class="metric">Quality: 97%</span>
+                </div>
+            </div>
+
+            <div class="agent-card">
+                <h3>NETA</h3>
+                <p class="agent-role">Executive Authority</p>
+                <p>Supreme directive authority with tactical enforcement and real-time operations oversight.</p>
+                <div class="agent-metrics">
+                    <span class="metric">Decisions: 3,241</span>
+                    <span class="metric">Compliance: 100%</span>
+                </div>
+            </div>
+
+            <div class="agent-card">
+                <h3>WANITA</h3>
+                <p class="agent-role">Global Networking</p>
+                <p>Oversees global broadcast, transfer, and transport operations for all agent communications.</p>
+                <div class="agent-metrics">
+                    <span class="metric">Connections: 1,847</span>
+                    <span class="metric">Latency: 12ms</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AR Experience -->
+    <section id="ar-experience" class="ar-section">
+        <h2>Augmented Reality Experience</h2>
+        <div class="ar-container">
+            <div class="ar-controls">
+                <button class="btn-ar" onclick="startARExperience()">Launch AR</button>
+                <button class="btn-ar" onclick="dropARContent()">Drop Content</button>
+                <button class="btn-ar" onclick="viewARMap()">View AR Map</button>
+            </div>
+            <div class="ar-preview">
+                <div class="ar-placeholder">
+                    <p>AR Experience Preview</p>
+                    <p>📱 Scan QR codes to drop AR content</p>
+                    <p>🌍 Geo-aware triggers via GPS/BLE</p>
+                    <p>👥 Anonymous engagement tracking</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Showcase -->
+    <section id="projects" class="projects-section">
+        <h2>Project Ecosystem</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <h3>Jetstreamin AR Pin</h3>
+                <p>AR-enabled social platform with FastAPI backend and React frontend</p>
+                <div class="project-tech">
+                    <span class="tech-tag">Python</span>
+                    <span class="tech-tag">React</span>
+                    <span class="tech-tag">AR.js</span>
+                    <span class="tech-tag">AWS</span>
+                </div>
+                <div class="project-status">Status: Active</div>
+            </div>
+
+            <div class="project-card">
+                <h3>Jetstreamin Jettz</h3>
+                <p>Plugin system with desktop applications and cross-platform builds</p>
+                <div class="project-tech">
+                    <span class="tech-tag">Node.js</span>
+                    <span class="tech-tag">Electron</span>
+                    <span class="tech-tag">Jest</span>
+                    <span class="tech-tag">TypeScript</span>
+                </div>
+                <div class="project-status">Status: Active</div>
+            </div>
+
+            <div class="project-card">
+                <h3>Jetstreamin Private</h3>
+                <p>Core governance, compliance, and SDLC automation systems</p>
+                <div class="project-tech">
+                    <span class="tech-tag">Bash</span>
+                    <span class="tech-tag">Python</span>
+                    <span class="tech-tag">YAML</span>
+                    <span class="tech-tag">Docker</span>
+                </div>
+                <div class="project-status">Status: Core</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Monetization -->
+    <section id="monetization" class="monetization-section">
+        <h2>Monetization Opportunities</h2>
+        <div class="monetization-grid">
+            <div class="monetization-card">
+                <h3>Premium Features</h3>
+                <p>Advanced AI capabilities, priority processing, and enhanced AR experiences</p>
+                <button class="btn-premium">Upgrade Now</button>
+            </div>
+            <div class="monetization-card">
+                <h3>API Access</h3>
+                <p>Integrate Jetstreamin agents into your applications with our robust API</p>
+                <button class="btn-api">Get API Key</button>
+            </div>
+            <div class="monetization-card">
+                <h3>Enterprise Solutions</h3>
+                <p>Custom deployments, white-label options, and dedicated support</p>
+                <button class="btn-enterprise">Contact Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Jetstreamin</h4>
+                <p>Autonomous AI Agent Platform</p>
+                <p>Built with ❤️ for the future</p>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <a href="#docs">Documentation</a>
+                <a href="#api">API Reference</a>
+                <a href="#community">Community</a>
+            </div>
+            <div class="footer-section">
+                <h4>Legal</h4>
+                <a href="#terms">Terms of Service</a>
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#license">MIT License</a>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <p>50% of profits donated to CFF</p>
+                <p>In memory of Zachary Church</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Jetstreamin Contributors. Licensed under MIT.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="scripts/main.js"></script>
+    <script src="scripts/dashboard.js"></script>
+    <script src="scripts/ar-experience.js"></script>
 </body>
 </html>
