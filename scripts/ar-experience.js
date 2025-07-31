@@ -29,12 +29,23 @@ class ARExperienceManager {
             navigator.xr.isSessionSupported('immersive-ar').then(supported => {
                 console.log(`WebXR AR support: ${supported}`);
                 this.webXRSupported = supported;
+            }).catch(error => {
+                console.warn('WebXR check failed:', error);
+                this.webXRSupported = false;
             });
+        } else {
+            this.webXRSupported = false;
         }
         
         // Check for camera access
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            })
                 .then(stream => {
                     console.log('📷 Camera access granted');
                     stream.getTracks().forEach(track => track.stop());
@@ -43,25 +54,52 @@ class ARExperienceManager {
                 .catch(error => {
                     console.warn('📷 Camera access denied:', error);
                     this.cameraSupported = false;
+                    this.showARError('Camera access required for AR. Please enable camera permissions.');
                 });
+        } else {
+            this.cameraSupported = false;
+            this.showARError('Camera not supported on this device.');
         }
     }
     
     setupARScene() {
+        // Check if A-Frame is loaded
+        if (typeof AFRAME === 'undefined') {
+            console.error('A-Frame not loaded');
+            this.showARError('AR libraries not loaded. Please refresh the page.');
+            return;
+        }
+
         // Create A-Frame scene programmatically
         const sceneEl = document.createElement('a-scene');
+        sceneEl.setAttribute('embedded', true);
         sceneEl.setAttribute('arjs', {
             sourceType: 'webcam',
             debugUIEnabled: false,
             detectionMode: 'mono_and_matrix',
-            matrixCodeType: '3x3'
+            matrixCodeType: '3x3',
+            trackingMethod: 'best',
+            sourceWidth: 1280,
+            sourceHeight: 720,
+            displayWidth: window.innerWidth,
+            displayHeight: window.innerHeight
         });
-        sceneEl.setAttribute('embedded', true);
         sceneEl.setAttribute('vr-mode-ui', 'enabled: false');
+        sceneEl.setAttribute('gesture-detector', '');
         sceneEl.style.display = 'none';
         sceneEl.id = 'ar-scene';
         
-        // Add camera
+        // Add error handling
+        sceneEl.addEventListener('arjs-video-loaded', () => {
+            console.log('📷 AR video loaded successfully');
+        });
+        
+        sceneEl.addEventListener('camera-error', (error) => {
+            console.error('📷 Camera error:', error);
+            this.showARError('Camera error. Please check permissions and try again.');
+        });
+
+        // Add camera with error handling
         const camera = document.createElement('a-camera');
         camera.setAttribute('gps-camera', 'rotationUpdateEnabled: false');
         camera.setAttribute('arjs-camera', '');
@@ -225,28 +263,65 @@ class ARExperienceManager {
     }
     
     startARExperience() {
+        // Check HTTPS requirement
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            this.showARError('HTTPS required for AR camera access. Please use HTTPS or localhost.');
+            return;
+        }
+
+        // Check A-Frame availability
+        if (typeof AFRAME === 'undefined') {
+            this.showARError('AR libraries not loaded. Please refresh the page.');
+            return;
+        }
+
         if (!this.cameraSupported) {
-            this.showARError('Camera access required for AR experience');
+            this.showARError('Camera access required for AR experience. Please enable camera permissions and refresh.');
             return;
         }
         
         this.isARActive = true;
         
-        // Show AR scene
-        if (this.arScene) {
-            this.arScene.style.display = 'block';
-            this.arScene.style.position = 'fixed';
-            this.arScene.style.top = '0';
-            this.arScene.style.left = '0';
-            this.arScene.style.width = '100%';
-            this.arScene.style.height = '100%';
-            this.arScene.style.zIndex = '1000';
-        }
+        // Show loading indicator
+        this.showARLoading();
         
-        // Show AR UI overlay
-        this.showAROverlay();
-        
-        console.log('🥽 AR Experience started');
+        // Request camera permission explicitly
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        })
+        .then(stream => {
+            // Stop the test stream
+            stream.getTracks().forEach(track => track.stop());
+            
+            // Show AR scene
+            if (this.arScene) {
+                this.arScene.style.display = 'block';
+                this.arScene.style.position = 'fixed';
+                this.arScene.style.top = '0';
+                this.arScene.style.left = '0';
+                this.arScene.style.width = '100%';
+                this.arScene.style.height = '100%';
+                this.arScene.style.zIndex = '1000';
+                
+                // Wait for scene to initialize
+                setTimeout(() => {
+                    this.hideARLoading();
+                    this.showAROverlay();
+                }, 2000);
+            }
+            
+            console.log('🥽 AR Experience started');
+        })
+        .catch(error => {
+            console.error('Camera permission error:', error);
+            this.hideARLoading();
+            this.isARActive = false;
+            this.showARError('Camera permission denied. Please allow camera access and try again.');
+        });
     }
     
     stopARExperience() {
@@ -261,6 +336,44 @@ class ARExperienceManager {
         this.hideAROverlay();
         
         console.log('🥽 AR Experience stopped');
+    }
+    
+    showARLoading() {
+        const loading = document.createElement('div');
+        loading.className = 'ar-loading';
+        loading.id = 'ar-loading';
+        loading.innerHTML = `
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <h3>Initializing AR Experience</h3>
+                <p>Please allow camera access when prompted</p>
+                <p>Make sure you're using HTTPS or localhost</p>
+            </div>
+        `;
+        
+        loading.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            color: var(--text-light);
+            text-align: center;
+        `;
+        
+        document.body.appendChild(loading);
+    }
+    
+    hideARLoading() {
+        const loading = document.getElementById('ar-loading');
+        if (loading) {
+            loading.remove();
+        }
     }
     
     showAROverlay() {
@@ -533,6 +646,164 @@ class ARExperienceManager {
         document.body.appendChild(fallback);
     }
     
+    showARFallback() {
+        const fallback = document.createElement('div');
+        fallback.className = 'ar-fallback';
+        fallback.innerHTML = `
+            <div class="fallback-content">
+                <h3>AR Experience</h3>
+                <div class="fallback-demo">
+                    <div class="demo-viewport">
+                        <div class="demo-content">
+                            <div class="floating-logo">🚀 JETSTREAMIN</div>
+                            <div class="demo-particles"></div>
+                        </div>
+                    </div>
+                    <div class="demo-controls">
+                        <button onclick="arManager.simulateARDrop()">Drop Content</button>
+                        <button onclick="arManager.toggleDemo()">Toggle View</button>
+                        <button onclick="arManager.hideARFallback()">Close</button>
+                    </div>
+                </div>
+                <div class="fallback-info">
+                    <p><strong>For full AR experience:</strong></p>
+                    <ul>
+                        <li>Use HTTPS or localhost</li>
+                        <li>Allow camera access</li>
+                        <li>Use a supported browser (Chrome, Safari, Edge)</li>
+                        <li>Point camera at QR codes or markers</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        
+        fallback.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            z-index: 2000;
+            color: var(--text-light);
+            padding: 2rem;
+            overflow-y: auto;
+        `;
+        
+        document.body.appendChild(fallback);
+        this.startFallbackDemo();
+    }
+    
+    hideARFallback() {
+        const fallback = document.querySelector('.ar-fallback');
+        if (fallback) {
+            fallback.remove();
+        }
+    }
+    
+    startFallbackDemo() {
+        // Create animated demo
+        const viewport = document.querySelector('.demo-viewport');
+        if (!viewport) return;
+        
+        viewport.style.cssText = `
+            width: 100%;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0,136,255,0.1) 0%, transparent 70%);
+            border: 2px solid var(--secondary-color);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            margin: 2rem 0;
+        `;
+        
+        const logo = viewport.querySelector('.floating-logo');
+        if (logo) {
+            logo.style.cssText = `
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: var(--primary-color);
+                font-weight: bold;
+                font-size: 1.5rem;
+                animation: float 3s ease-in-out infinite;
+            `;
+        }
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+                50% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); }
+            }
+            .demo-controls button {
+                background: var(--secondary-color);
+                color: var(--text-light);
+                border: none;
+                padding: 0.8rem 1.5rem;
+                margin: 0.5rem;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            .demo-controls button:hover {
+                background: var(--primary-color);
+                transform: translateY(-2px);
+            }
+            .fallback-info {
+                background: rgba(0,0,0,0.3);
+                padding: 1.5rem;
+                border-radius: 8px;
+                border-left: 4px solid var(--primary-color);
+                margin-top: 2rem;
+            }
+            .fallback-info ul {
+                margin-top: 1rem;
+                padding-left: 1.5rem;
+            }
+            .fallback-info li {
+                margin-bottom: 0.5rem;
+                color: var(--text-dim);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    simulateARDrop() {
+        const viewport = document.querySelector('.demo-viewport');
+        if (!viewport) return;
+        
+        const drop = document.createElement('div');
+        drop.textContent = '📍 Content Dropped!';
+        drop.style.cssText = `
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,255,136,0.9);
+            color: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: bold;
+            animation: dropIn 0.5s ease-out;
+        `;
+        
+        viewport.appendChild(drop);
+        setTimeout(() => drop.remove(), 3000);
+    }
+    
+    toggleDemo() {
+        const logo = document.querySelector('.floating-logo');
+        if (!logo) return;
+        
+        const messages = ['🚀 JETSTREAMIN', '🤖 AI AGENTS', '🥽 AR READY', '🌐 CONNECTED'];
+        const currentText = logo.textContent;
+        const currentIndex = messages.indexOf(currentText);
+        const nextIndex = (currentIndex + 1) % messages.length;
+        logo.textContent = messages[nextIndex];
+    }
+    
     updateLocationBasedContent() {
         // Update AR content based on new location
         this.loadNearbyARContent();
@@ -573,6 +844,13 @@ window.startARExperience = function() {
     if (!arManager) {
         arManager = new ARExperienceManager();
     }
+    
+    // Check if we should show fallback experience
+    if (!arManager.cameraSupported || (location.protocol !== 'https:' && location.hostname !== 'localhost')) {
+        arManager.showARFallback();
+        return;
+    }
+    
     arManager.startARExperience();
 };
 
